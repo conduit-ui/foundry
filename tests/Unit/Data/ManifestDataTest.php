@@ -55,7 +55,7 @@ describe('ManifestData', function () {
             ->and($data->bifrost)->toBeInstanceOf(BifrostData::class)
             ->and($data->bifrost->source)->toBe('billing-service')
             ->and($data->quality)->toBeInstanceOf(QualityData::class)
-            ->and($data->quality->coverage)->toBe(100)
+            ->and($data->quality->coverage)->toBe(100.0)
             ->and($data->deploy)->toBeInstanceOf(DeployData::class)
             ->and($data->deploy->host)->toBe('odin');
     });

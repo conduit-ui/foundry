@@ -1,5 +1,7 @@
 <?php
 
+use App\Data\Enums\AuthDriver;
+use App\Data\Enums\DatabaseDriver;
 use App\Data\StackData;
 
 describe('StackData', function () {
@@ -16,9 +18,9 @@ describe('StackData', function () {
         expect($data->framework)->toBe('laravel')
             ->and($data->type)->toBe('microservice')
             ->and($data->php)->toBe('8.2')
-            ->and($data->auth)->toBe('github-socialite')
+            ->and($data->auth)->toBe(AuthDriver::GitHubSocialite)
             ->and($data->queue)->toBe('redis')
-            ->and($data->db)->toBe('sqlite');
+            ->and($data->db)->toBe(DatabaseDriver::Sqlite);
     });
 
     it('constructs directly', function () {
@@ -26,12 +28,26 @@ describe('StackData', function () {
             framework: 'laravel',
             type: 'api',
             php: '8.3',
-            auth: 'none',
+            auth: AuthDriver::None,
             queue: 'sync',
-            db: 'mysql',
+            db: DatabaseDriver::Mysql,
         );
 
         expect($data->framework)->toBe('laravel')
-            ->and($data->db)->toBe('mysql');
+            ->and($data->auth)->toBe(AuthDriver::None)
+            ->and($data->db)->toBe(DatabaseDriver::Mysql);
+    });
+
+    it('supports all auth driver cases', function () {
+        expect(AuthDriver::GitHubSocialite->value)->toBe('github-socialite')
+            ->and(AuthDriver::GoogleSocialite->value)->toBe('google-socialite')
+            ->and(AuthDriver::LoginLink->value)->toBe('login-link')
+            ->and(AuthDriver::None->value)->toBe('none');
+    });
+
+    it('supports all database driver cases', function () {
+        expect(DatabaseDriver::Sqlite->value)->toBe('sqlite')
+            ->and(DatabaseDriver::Mysql->value)->toBe('mysql')
+            ->and(DatabaseDriver::Pgsql->value)->toBe('pgsql');
     });
 });

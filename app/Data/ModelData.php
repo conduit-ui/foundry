@@ -10,7 +10,8 @@ class ModelData extends Data
 {
     /**
      * @param  DataCollection<int, RelationshipData>  $relationships
-     * @param  string[]  $attributes
+     * @param  string[]  $attributes  Blueprint-style type declarations: `name:string`, `price_cents:integer`,
+     *                                `is_active:boolean`. Plain names without `:type` default to `:string`.
      */
     public function __construct(
         public readonly string $name,

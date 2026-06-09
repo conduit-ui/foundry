@@ -8,7 +8,7 @@ class QualityData extends Data
 {
     public function __construct(
         public readonly bool $runner,
-        public readonly int $coverage,
+        public readonly float $coverage,
         public readonly bool $pint,
         public readonly bool $phpstan,
     ) {}

@@ -2,6 +2,8 @@
 
 namespace App\Data;
 
+use App\Data\Enums\AuthDriver;
+use App\Data\Enums\DatabaseDriver;
 use Spatie\LaravelData\Data;
 
 class StackData extends Data
@@ -10,8 +12,8 @@ class StackData extends Data
         public readonly string $framework,
         public readonly string $type,
         public readonly string $php,
-        public readonly string $auth,
+        public readonly AuthDriver $auth,
         public readonly string $queue,
-        public readonly string $db,
+        public readonly DatabaseDriver $db,
     ) {}
 }

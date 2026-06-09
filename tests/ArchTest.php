@@ -10,4 +10,5 @@ arch('jobs are queueable')
 
 arch('data objects extend spatie data')
     ->expect('App\Data')
+    ->ignoring('App\Data\Enums')
     ->toExtend('Spatie\LaravelData\Data');

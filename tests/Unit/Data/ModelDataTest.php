@@ -7,14 +7,14 @@ describe('ModelData', function () {
     it('constructs from array with relationships', function () {
         $data = ModelData::from([
             'name' => 'Plan',
-            'attributes' => ['name', 'price_cents'],
+            'attributes' => ['name:string', 'price_cents:integer', 'is_active:boolean'],
             'relationships' => [
                 ['type' => 'hasMany', 'model' => 'Subscription'],
             ],
         ]);
 
         expect($data->name)->toBe('Plan')
-            ->and($data->attributes)->toBe(['name', 'price_cents'])
+            ->and($data->attributes)->toBe(['name:string', 'price_cents:integer', 'is_active:boolean'])
             ->and($data->relationships)->toHaveCount(1)
             ->and($data->relationships->first())->toBeInstanceOf(RelationshipData::class)
             ->and($data->relationships->first()->type)->toBe('hasMany');
@@ -32,7 +32,7 @@ describe('ModelData', function () {
     it('accepts multiple relationships', function () {
         $data = ModelData::from([
             'name' => 'User',
-            'attributes' => ['email'],
+            'attributes' => ['email:string'],
             'relationships' => [
                 ['type' => 'hasMany', 'model' => 'Post'],
                 ['type' => 'hasOne', 'model' => 'Profile'],
@@ -40,5 +40,15 @@ describe('ModelData', function () {
         ]);
 
         expect($data->relationships)->toHaveCount(2);
+    });
+
+    it('accepts plain attribute names that default to string type', function () {
+        $data = ModelData::from([
+            'name' => 'Product',
+            'attributes' => ['name', 'slug'],
+            'relationships' => [],
+        ]);
+
+        expect($data->attributes)->toBe(['name', 'slug']);
     });
 });
