@@ -13,7 +13,7 @@ describe('SkeletonService', function () {
         Process::assertRan('git clone git@github.com:the-shit/agent-skeleton.git /tmp/my-app');
     });
 
-    it('sets remote origin and force pushes to the given repo URL', function () {
+    it('sets remote origin and pushes to the given repo URL', function () {
         Process::fake();
 
         $service = new SkeletonService;
@@ -21,5 +21,17 @@ describe('SkeletonService', function () {
 
         Process::assertRan('git remote set-url origin git@github.com:conduit-ui/my-app.git');
         Process::assertRan('git push -u origin main');
+    });
+
+    it('throws when git push fails', function () {
+        Process::fake([
+            'git remote set-url*' => Process::result('', '', 0),
+            'git push*' => Process::result('', 'error: failed to push', 1),
+        ]);
+
+        $service = new SkeletonService;
+
+        expect(fn () => $service->push('/tmp/my-app', 'git@github.com:conduit-ui/my-app.git'))
+            ->toThrow(\RuntimeException::class, 'Failed to push to');
     });
 });

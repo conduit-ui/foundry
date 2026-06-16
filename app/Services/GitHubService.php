@@ -26,7 +26,6 @@ class GitHubService
                 'name' => $manifest->name,
                 'description' => $manifest->description,
                 'private' => true,
-                'auto_init' => true,
             ]);
 
         $this->ensureSuccess($response, 'Failed to create GitHub repository');

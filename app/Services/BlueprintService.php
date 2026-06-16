@@ -36,10 +36,36 @@ class BlueprintService
 
     public function build(ManifestData $manifest, string $repoPath): void
     {
-        $draftPath = $repoPath.'/draft.yaml';
+        // Write draft to the target repo (for reference)
+        file_put_contents($repoPath.'/draft.yaml', $this->generateDraft($manifest));
 
+        // Run blueprint from foundry's own artisan (blueprint is installed here)
+        // and capture which files it generates
+        $draftPath = base_path('draft-'.uniqid().'.yaml');
         file_put_contents($draftPath, $this->generateDraft($manifest));
 
-        Process::path($repoPath)->run('php artisan blueprint:build draft.yaml');
+        $result = Process::run('php '.base_path('artisan')." blueprint:build {$draftPath}");
+
+        @unlink($draftPath);
+
+        // Parse generated file paths from blueprint output and copy to target repo
+        preg_match_all('/\[([^\]]+)\] built successfully/', $result->output(), $matches);
+
+        foreach ($matches[1] as $generatedPath) {
+            $srcPath = base_path($generatedPath);
+            $destPath = $repoPath.'/'.$generatedPath;
+
+            if (file_exists($srcPath)) {
+                @mkdir(dirname($destPath), 0755, true);
+                copy($srcPath, $destPath);
+                @unlink($srcPath);
+            }
+        }
+
+        Process::path($repoPath)->run('git add -A');
+        Process::path($repoPath)->run(
+            'git -c user.email="foundry@conduit-ui.com" -c user.name="Foundry" '.
+            'commit -m "feat: scaffold '.addslashes($manifest->name).'"'
+        );
     }
 }

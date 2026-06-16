@@ -45,7 +45,6 @@ describe('GitHubService', function () {
                 && $request['name'] === 'my-service'
                 && $request['description'] === 'A test service'
                 && $request['private'] === true
-                && $request['auto_init'] === true
             );
         });
 

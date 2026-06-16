@@ -77,6 +77,32 @@ describe('CodeGeneratorJob', function () {
             ->and($run->completed_at)->not->toBeNull();
     });
 
+    it('completes successfully when ollama throws, storing empty output', function () {
+        $run = makeRun();
+        $manifest = makeCodeGenManifest();
+
+        $skeleton = Mockery::mock(SkeletonService::class);
+        $skeleton->shouldReceive('clone')->once();
+        $skeleton->shouldReceive('push')->once();
+
+        $blueprint = Mockery::mock(BlueprintService::class);
+        $blueprint->shouldReceive('build')->once();
+
+        $ollama = Mockery::mock(OllamaService::class);
+        $ollama->shouldReceive('generate')->once()->andThrow(new \RuntimeException('Connection refused'));
+
+        $quadlet = Mockery::mock(QuadletService::class);
+        $quadlet->shouldReceive('deploy')->once();
+
+        $job = new CodeGeneratorJob($run, $manifest);
+        $job->handle($skeleton, $blueprint, $ollama, $quadlet);
+
+        $run->refresh();
+        expect($run->status)->toBe(ScaffoldStatus::Complete)
+            ->and($run->output)->toBe('')
+            ->and($run->completed_at)->not->toBeNull();
+    });
+
     it('marks run as failed and re-throws when a service throws', function () {
         $run = makeRun();
         $manifest = makeCodeGenManifest();

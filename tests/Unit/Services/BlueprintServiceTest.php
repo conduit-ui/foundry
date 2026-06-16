@@ -80,8 +80,15 @@ describe('BlueprintService', function () {
             ->toContain('hasMany: Subscription');
     });
 
-    it('writes draft.yaml and runs blueprint:build', function () {
-        Process::fake();
+    it('writes draft.yaml, runs blueprint:build, and commits generated files to target repo', function () {
+        Process::fake([
+            '*blueprint:build*' => Process::result(
+                "   CREATED  Factory [database/factories/TestFactory.php] built successfully.\n".
+                "   CREATED  Model [app/Models/Test.php] built successfully.\n"
+            ),
+            '*git add*' => Process::result(''),
+            '*git*commit*' => Process::result(''),
+        ]);
 
         $tmpPath = sys_get_temp_dir() . '/blueprint-test-' . uniqid();
         mkdir($tmpPath);
@@ -90,9 +97,11 @@ describe('BlueprintService', function () {
         $service->build(blueprintManifest(), $tmpPath);
 
         expect(file_exists($tmpPath . '/draft.yaml'))->toBeTrue();
-        Process::assertRan('php artisan blueprint:build draft.yaml');
+        Process::assertRan(fn ($p) => str_contains($p->command, 'blueprint:build'));
+        Process::assertRan(fn ($p) => str_contains($p->command, 'git add'));
+        Process::assertRan(fn ($p) => str_contains($p->command, 'commit'));
 
-        array_map('unlink', glob($tmpPath . '/*'));
+        @unlink($tmpPath . '/draft.yaml');
         rmdir($tmpPath);
     });
 });

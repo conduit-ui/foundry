@@ -161,6 +161,24 @@ describe('RepoGeneratorJob', function () {
             ->toContain('Subscription');
     });
 
+    it('completes without throwing when bifrost registration fails', function () {
+        $manifest = makeJobManifest();
+
+        $github = Mockery::mock(GitHubService::class, function (MockInterface $mock) use ($manifest) {
+            $mock->shouldReceive('createRepo')->once()->with($manifest)->andReturn(['id' => 1]);
+            $mock->shouldReceive('openIssue')->once()->andReturn(['number' => 1]);
+        });
+
+        $bifrost = Mockery::mock(BifrostService::class, function (MockInterface $mock) use ($manifest) {
+            $mock->shouldReceive('registerSource')->once()->with($manifest)
+                ->andThrow(new \RuntimeException('Failed to register Bifrost source: HTTP 404'));
+        });
+
+        $job = new RepoGeneratorJob($manifest);
+
+        expect(fn () => $job->handle($github, $bifrost))->not->toThrow(\Throwable::class);
+    });
+
     it('produces a model issue body without attribute or relationship sections when both are empty', function () {
         $manifest = makeJobManifest([
             ['name' => 'Tag', 'attributes' => [], 'relationships' => []],

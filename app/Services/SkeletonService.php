@@ -14,6 +14,11 @@ class SkeletonService
     public function push(string $repoPath, string $repoUrl): void
     {
         Process::path($repoPath)->run("git remote set-url origin {$repoUrl}");
-        Process::path($repoPath)->run('git push -u origin main');
+
+        $result = Process::path($repoPath)->run('git push -u origin main');
+
+        if (! $result->successful()) {
+            throw new \RuntimeException("Failed to push to {$repoUrl}: {$result->errorOutput()}");
+        }
     }
 }

@@ -17,6 +17,7 @@
     },
     "require-dev": {
         "larastan/larastan": "^3.0",
+        "laravel-shift/blueprint": "^2.13",
         "laravel/pint": "^1.0",
         "mockery/mockery": "^1.6",
         "pestphp/pest": "^3.8.4|^4.1.2",

@@ -34,7 +34,11 @@ class RepoGeneratorJob implements ShouldQueue
             );
         }
 
-        $bifrost->registerSource($this->manifest);
+        try {
+            $bifrost->registerSource($this->manifest);
+        } catch (\Throwable) {
+            // Bifrost source registration is best-effort; source can be created via bifrost:source:add
+        }
     }
 
     private function setupIssueBody(): string

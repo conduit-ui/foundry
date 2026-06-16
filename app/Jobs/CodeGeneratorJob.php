@@ -40,10 +40,14 @@ class CodeGeneratorJob implements ShouldQueue
             $skeleton->clone($tmpPath);
             $blueprint->build($this->manifest, $tmpPath);
 
-            $customization = $ollama->generate(
-                "Given this Laravel app manifest: {$this->manifest->name} — {$this->manifest->description}. ".
-                'Suggest any additional scopes, accessors, or business logic methods worth adding to the generated models. Be concise.'
-            );
+            try {
+                $customization = $ollama->generate(
+                    "Given this Laravel app manifest: {$this->manifest->name} — {$this->manifest->description}. ".
+                    'Suggest any additional scopes, accessors, or business logic methods worth adding to the generated models. Be concise.'
+                );
+            } catch (\Throwable) {
+                $customization = '';
+            }
 
             $skeleton->push(
                 $tmpPath,
