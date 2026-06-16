@@ -12,4 +12,13 @@ return [
         'token' => env('BIFROST_TOKEN'),
     ],
 
+    'ollama' => [
+        'url' => env('OLLAMA_URL', 'http://loki:11434'),
+    ],
+
+    'deploy' => [
+        'host' => env('DEPLOY_SSH_HOST', 'odin'),
+        'user' => env('DEPLOY_SSH_USER', 'jordan'),
+    ],
+
 ];

@@ -3,17 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Data\ManifestData;
-use App\Enums\ScaffoldStatus;
-use App\Jobs\CodeGeneratorJob;
-use App\Jobs\RepoGeneratorJob;
 use App\Models\ScaffoldRun;
+use App\Services\ScaffoldPipeline;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 
 class ScaffoldController extends Controller
 {
-    public function store(Request $request): JsonResponse
+    public function store(Request $request, ScaffoldPipeline $pipeline): JsonResponse
     {
         $request->validate([
             'name' => ['required', 'string'],
@@ -40,14 +38,7 @@ class ScaffoldController extends Controller
         ]);
 
         $manifest = ManifestData::from($request->all());
-
-        $run = ScaffoldRun::create([
-            'manifest' => $manifest->toArray(),
-            'status' => ScaffoldStatus::Queued,
-        ]);
-
-        RepoGeneratorJob::dispatch($manifest);
-        CodeGeneratorJob::dispatch($run);
+        $run = $pipeline->dispatch($manifest);
 
         return response()->json([
             'id' => $run->id,
